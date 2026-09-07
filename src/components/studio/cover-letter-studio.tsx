@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { OpportunityDTO, CoverLetterResult } from "@/lib/types";
 import { COVER_LETTER_TONES } from "@/lib/constants";
 import { SAMPLE_PROFILES } from "@/lib/sample-profiles";
+import { aiProviderLabel } from "@/lib/format";
 import { PenLine, Loader2, Copy, Check } from "lucide-react";
 
 export function CoverLetterStudio() {
@@ -146,7 +147,7 @@ export function CoverLetterStudio() {
               </ul>
             </div>
             <p className="text-xs text-ink-500">
-              Generated via {result.provider === "gemini" ? "Gemini reasoning" : "VoltScout heuristic writer"}.
+              Generated via {aiProviderLabel(result.provider)}.
             </p>
           </div>
         )}

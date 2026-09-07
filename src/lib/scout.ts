@@ -1,7 +1,7 @@
 import { prisma } from "./db";
 import { EE_DOMAINS } from "./constants";
 import { DISCOVERY_POOL, type DiscoveryLead } from "./opportunity-data";
-import { groundedScoutSearch, isGeminiConfigured } from "./gemini";
+import { scoutSearch, pickLlmProvider, type ScoutProvider } from "./ai";
 
 type LogLevel = "info" | "success" | "warning" | "error";
 
@@ -67,18 +67,25 @@ async function runSimulatedDiscipline(
   return { logs, leads: picked };
 }
 
+const PROVIDER_LABEL: Record<ScoutProvider, string> = {
+  "anthropic-grounding": "Claude web-search grounded",
+  "gemini-grounding": "Google Search grounded",
+  simulated: "simulated",
+};
+
 async function runGroundedDiscipline(
   discipline: string,
   existingKeys: Set<string>,
-): Promise<{ logs: PendingLog[]; leads: DiscoveryLead[]; usedFallback: boolean }> {
+): Promise<{ logs: PendingLog[]; leads: DiscoveryLead[]; usedFallback: boolean; provider: ScoutProvider }> {
   const logs: PendingLog[] = [];
   const queries = buildQueries(discipline);
-  for (const q of queries) {
-    logs.push({ level: "info", message: `Dispatching Google Search grounded query for "${discipline}"`, query: q });
-  }
 
   try {
-    const { leads, citations } = await groundedScoutSearch(discipline, queries);
+    const { leads, citations, provider } = await scoutSearch(discipline, queries);
+    const label = PROVIDER_LABEL[provider];
+    for (const q of queries) {
+      logs.push({ level: "info", message: `Dispatching ${label} query for "${discipline}"`, query: q });
+    }
     const fresh = leads.filter((l) => !existingKeys.has(dedupeKey(l.title, l.organization)));
 
     for (const c of citations) {
@@ -94,16 +101,19 @@ async function runGroundedDiscipline(
     if (fresh.length === 0) {
       logs.push({ level: "warning", message: `No new verified postings surfaced for "${discipline}" this run.` });
     }
-    return { logs, leads: fresh, usedFallback: false };
+    return { logs, leads: fresh, usedFallback: false, provider };
   } catch (err) {
+    for (const q of queries) {
+      logs.push({ level: "info", message: `Dispatching query for "${discipline}"`, query: q });
+    }
     logs.push({
       level: "warning",
-      message: `Live Gemini grounding unavailable for "${discipline}" (${
+      message: `Live AI grounding unavailable for "${discipline}" (${
         err instanceof Error ? err.message : "unknown error"
       }) — falling back to simulated discovery.`,
     });
     const sim = await runSimulatedDiscipline(discipline, existingKeys);
-    return { logs: [...logs, ...sim.logs], leads: sim.leads, usedFallback: true };
+    return { logs: [...logs, ...sim.logs], leads: sim.leads, usedFallback: true, provider: "simulated" };
   }
 }
 
@@ -114,13 +124,14 @@ function dedupeKey(title: string, organization: string): string {
 export async function runScoutAgent(opts: { disciplines?: string[]; trigger: "scheduled" | "manual" }) {
   const disciplines = opts.disciplines && opts.disciplines.length > 0 ? opts.disciplines : [...EE_DOMAINS];
   const startedAt = new Date();
+  const llmProvider = pickLlmProvider();
 
   const scoutRun = await prisma.scoutRun.create({
     data: {
       trigger: opts.trigger,
       disciplines: disciplines.join(", "),
       status: "running",
-      provider: isGeminiConfigured() ? "gemini-grounding" : "simulated",
+      provider: llmProvider === "anthropic" ? "anthropic-grounding" : llmProvider === "gemini" ? "gemini-grounding" : "simulated",
     },
   });
 
@@ -134,15 +145,16 @@ export async function runScoutAgent(opts: { disciplines?: string[]; trigger: "sc
     },
   ];
 
-  let anyFallback = false;
+  let anyLive = false;
   const allLeads: DiscoveryLead[] = [];
 
   for (const discipline of disciplines) {
-    const { logs, leads, usedFallback } = isGeminiConfigured()
-      ? await runGroundedDiscipline(discipline, existingKeys)
-      : { ...(await runSimulatedDiscipline(discipline, existingKeys)), usedFallback: false };
+    const { logs, leads, usedFallback } =
+      llmProvider !== "none"
+        ? await runGroundedDiscipline(discipline, existingKeys)
+        : { ...(await runSimulatedDiscipline(discipline, existingKeys)), usedFallback: false };
 
-    if (usedFallback) anyFallback = true;
+    if (!usedFallback && llmProvider !== "none") anyLive = true;
     allLogs.push(...logs);
     for (const l of leads) {
       existingKeys.add(dedupeKey(l.title, l.organization));
@@ -196,6 +208,12 @@ export async function runScoutAgent(opts: { disciplines?: string[]; trigger: "sc
     })),
   });
 
+  const finalProvider = anyLive
+    ? llmProvider === "anthropic"
+      ? "anthropic-grounding"
+      : "gemini-grounding"
+    : "simulated";
+
   await prisma.scoutRun.update({
     where: { id: scoutRun.id },
     data: {
@@ -203,7 +221,7 @@ export async function runScoutAgent(opts: { disciplines?: string[]; trigger: "sc
       finishedAt,
       durationMs,
       newRolesCount: allLeads.length,
-      provider: isGeminiConfigured() ? (anyFallback ? "simulated" : "gemini-grounding") : "simulated",
+      provider: finalProvider,
     },
   });
 

@@ -35,11 +35,14 @@ Without any configuration, VoltScout runs entirely on high-quality deterministic
 - The resume matcher scores fit via keyword/skill overlap heuristics.
 - The cover-letter studio uses templated, tone-aware generation.
 
-To enable **live** Gemini reasoning and **Google Search grounding** (the agent then searches the real web for verified, citable postings):
+VoltScout supports two interchangeable live-AI providers — pick whichever you have a key for:
 
-1. Get an API key at https://aistudio.google.com/apikey
-2. Set `GEMINI_API_KEY=your-key` in `.env`
-3. Restart the server. The Scout Agent page will show `provider: gemini-grounding` on new runs; if a live call ever fails, it automatically falls back to simulated discovery so the app never breaks.
+| Provider | Env var | Get a key | Search grounding |
+|---|---|---|---|
+| **Anthropic (Claude)** | `ANTHROPIC_API_KEY` | https://console.anthropic.com/settings/keys | Claude's server-side web search tool |
+| **Google (Gemini)** | `GEMINI_API_KEY` | https://aistudio.google.com/apikey | Google Search grounding |
+
+Set one (or both) in `.env` and restart the server. **If both are set, Anthropic is used by default** — set `AI_PROVIDER=gemini` to force Gemini instead. The Scout Agent page will show the active provider (e.g. `Claude + web search`) on new runs; if a live call ever fails, everything automatically falls back to simulated/heuristic mode so the app never breaks. `ANTHROPIC_MODEL` optionally overrides the default model (`claude-opus-5`) if you want a cheaper/faster one.
 
 ## Feature Tour
 
@@ -79,8 +82,10 @@ src/
     constants.ts        Shared vocabulary (domains, filters, tones, etc.)
     opportunity-data.ts Seed data + simulated-scouting discovery pool
     scout.ts             Core scouting agent (used by API + scheduler)
-    gemini.ts            Live Gemini + Google Search grounding calls
-    heuristics.ts        Deterministic fallback intelligence
+    ai.ts                 Provider orchestrator (Anthropic vs Gemini vs heuristic)
+    anthropic.ts          Live Claude + web search tool calls
+    gemini.ts             Live Gemini + Google Search grounding calls
+    heuristics.ts         Deterministic fallback intelligence
     search.ts            Fuzzy/boolean catalog search
   instrumentation.ts    Boots the daily 08:00 UTC autonomous scout run
 prisma/

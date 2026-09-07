@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { DiscoveryLead } from "./opportunity-data";
 import type { OpportunityDTO, ResumeMatchResult, CoverLetterResult } from "./types";
+import { extractJson } from "./json-extract";
 
 export function isGeminiConfigured(): boolean {
   return Boolean(process.env.GEMINI_API_KEY);
@@ -10,16 +11,6 @@ function getClient(): GoogleGenerativeAI {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY is not configured");
   return new GoogleGenerativeAI(key);
-}
-
-/** Strips ```json fences and extracts the first {...} or [...] block. */
-function extractJson<T>(text: string): T {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const raw = fenced ? fenced[1] : text;
-  const start = raw.search(/[[{]/);
-  if (start === -1) throw new Error("No JSON found in model response");
-  const candidate = raw.slice(start);
-  return JSON.parse(candidate) as T;
 }
 
 /**

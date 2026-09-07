@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { toOpportunityDTO } from "@/lib/types";
-import { isGeminiConfigured, geminiCoverLetter } from "@/lib/gemini";
-import { heuristicCoverLetter } from "@/lib/heuristics";
+import { coverLetter } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -20,16 +19,7 @@ export async function POST(req: NextRequest) {
   const opportunity = toOpportunityDTO(row);
   const profile = profileText.trim() || "A motivated Electrical Engineering student with hands-on coursework and lab project experience.";
 
-  let result;
-  if (isGeminiConfigured()) {
-    try {
-      result = await geminiCoverLetter(opportunity, tone, profile);
-    } catch {
-      result = heuristicCoverLetter(opportunity, tone, profile);
-    }
-  } else {
-    result = heuristicCoverLetter(opportunity, tone, profile);
-  }
+  const result = await coverLetter(opportunity, tone, profile);
 
   return NextResponse.json(result);
 }

@@ -24,6 +24,19 @@ export function daysUntil(iso: string | null): number | null {
   return Math.ceil((d - now) / (1000 * 60 * 60 * 24));
 }
 
+const AI_PROVIDER_LABELS: Record<string, string> = {
+  anthropic: "Claude reasoning",
+  gemini: "Gemini reasoning",
+  heuristic: "VoltScout heuristic engine",
+  "anthropic-grounding": "Claude + web search",
+  "gemini-grounding": "Gemini + Google Search",
+  simulated: "Simulated discovery",
+};
+
+export function aiProviderLabel(provider: string): string {
+  return AI_PROVIDER_LABELS[provider] ?? provider;
+}
+
 export function formatRelativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.round(diffMs / 60000);

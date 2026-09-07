@@ -5,7 +5,7 @@ import { SAMPLE_PROFILES } from "@/lib/sample-profiles";
 import { FitGauge } from "./fit-gauge";
 import { Sparkles, Loader2, TrendingUp, TrendingDown, Target } from "lucide-react";
 import type { OpportunityDTO } from "@/lib/types";
-import { formatDeadline } from "@/lib/format";
+import { formatDeadline, aiProviderLabel } from "@/lib/format";
 
 type Recommendation = { opportunityId: string; score: number; rationale: string; opportunity: OpportunityDTO };
 type MatchResponse = {
@@ -13,7 +13,7 @@ type MatchResponse = {
   strengths: string[];
   growthAreas: string[];
   recommendations: Recommendation[];
-  provider: "gemini" | "heuristic";
+  provider: "anthropic" | "gemini" | "heuristic";
 };
 
 export function ResumeMatcher() {
@@ -87,7 +87,7 @@ export function ResumeMatcher() {
               <div>
                 <p className="text-sm text-ink-300">
                   Overall fit for tier-1 EE labs & employers, computed via{" "}
-                  <span className="text-ink-100">{result.provider === "gemini" ? "Gemini reasoning" : "VoltScout heuristic matcher"}</span>.
+                  <span className="text-ink-100">{aiProviderLabel(result.provider)}</span>.
                 </p>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { EE_DOMAINS } from "@/lib/constants";
 import type { ScoutRunDTO } from "@/lib/types";
+import { aiProviderLabel } from "@/lib/format";
 import { TerminalLog } from "./terminal-log";
 import { Radar, Loader2, Check, X as XIcon, Terminal } from "lucide-react";
 import clsx from "clsx";
@@ -105,7 +106,7 @@ export function ScoutView() {
               <span>Disciplines: {currentRun.disciplines.length}</span>
               <span>Duration: {currentRun.durationMs ? `${(currentRun.durationMs / 1000).toFixed(1)}s` : "—"}</span>
               <span>New roles: {currentRun.newRolesCount}</span>
-              <span>Provider: {currentRun.provider === "gemini-grounding" ? "Gemini + Google Search" : "Simulated discovery"}</span>
+              <span>Provider: {aiProviderLabel(currentRun.provider)}</span>
             </div>
           )}
         </div>

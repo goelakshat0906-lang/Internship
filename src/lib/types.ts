@@ -59,14 +59,14 @@ export type ResumeMatchResult = {
     score: number; // 0-100
     rationale: string;
   }[];
-  provider: "gemini" | "heuristic";
+  provider: "anthropic" | "gemini" | "heuristic";
 };
 
 export type CoverLetterResult = {
   subject: string;
   letter: string;
   talkingPoints: string[];
-  provider: "gemini" | "heuristic";
+  provider: "anthropic" | "gemini" | "heuristic";
 };
 
 export type ScoutRunDTO = {
@@ -78,7 +78,7 @@ export type ScoutRunDTO = {
   status: "running" | "completed" | "failed";
   durationMs: number | null;
   newRolesCount: number;
-  provider: "gemini-grounding" | "simulated";
+  provider: "anthropic-grounding" | "gemini-grounding" | "simulated";
   logs: ScoutLogEntryDTO[];
 };
 
