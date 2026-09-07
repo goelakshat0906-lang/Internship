@@ -1,0 +1,81 @@
+// VoltScout data model
+// SQLite for zero-config local persistence; swap provider/url for Postgres in production.
+// Note: SQLite has no native enum support in Prisma, so categorical fields
+// are stored as validated strings — the canonical value sets live in
+// src/lib/constants.ts and are enforced at the API boundary (src/lib/validation.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Opportunity {
+  id           String @id @default(cuid())
+  title        String
+  organization String
+  orgType      String // industry | corporate | research_institute | university
+  domain       String // EE sub-discipline, e.g. "VLSI & Chip Design"
+  location     String
+  region       String // north_america | europe | asia_pacific | global_remote
+  season       String // summer_2026 | fall_2026 | spring_2027 | year_round
+  level        String // undergraduate | masters | phd
+
+  deadline        DateTime?
+  stipendEstimate String?
+  housingSupport  String?
+  visaSupport     Boolean   @default(false)
+
+  description      String
+  responsibilities String // newline-delimited
+  qualifications   String // newline-delimited
+  techStack        String // comma-delimited tool/framework list
+  sourceUrl        String
+  discoveredAt     DateTime @default(now())
+
+  // candidate tracking
+  userStatus String @default("discovered") // discovered | saved | applied | interview | offer | archived
+  userNotes  String @default("")
+
+  scoutRunId String?
+  scoutRun   ScoutRun? @relation(fields: [scoutRunId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([domain])
+  @@index([orgType])
+  @@index([region])
+  @@index([userStatus])
+}
+
+model ScoutRun {
+  id            String    @id @default(cuid())
+  startedAt     DateTime  @default(now())
+  finishedAt    DateTime?
+  trigger       String // "scheduled" | "manual"
+  disciplines   String // comma-delimited list of targeted disciplines
+  status        String // "running" | "completed" | "failed"
+  durationMs    Int?
+  newRolesCount Int       @default(0)
+  provider      String // "gemini-grounding" | "simulated"
+
+  logs          ScoutLogEntry[]
+  opportunities Opportunity[]
+}
+
+model ScoutLogEntry {
+  id         String   @id @default(cuid())
+  scoutRunId String
+  scoutRun   ScoutRun @relation(fields: [scoutRunId], references: [id], onDelete: Cascade)
+  timestamp  DateTime @default(now())
+  level      String // "info" | "success" | "warning" | "error"
+  message    String
+  query      String?
+  citation   String?
+
+  @@index([scoutRunId])
+}
