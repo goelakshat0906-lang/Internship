@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ORG_TYPES, REGIONS } from "@/lib/constants";
 
+// No dynamic params on this route, so Next.js would otherwise statically
+// prerender it once at build time — force it to re-run on every request.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const opportunities = await prisma.opportunity.findMany();
   const total = opportunities.length;
