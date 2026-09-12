@@ -18,6 +18,7 @@ type Filters = {
   season: string[];
   domain: string[];
   visaOnly: boolean;
+  hideExpired: boolean;
 };
 
 const EMPTY_FILTERS: Filters = {
@@ -28,6 +29,7 @@ const EMPTY_FILTERS: Filters = {
   season: [],
   domain: [],
   visaOnly: false,
+  hideExpired: true,
 };
 
 export function CatalogView() {
@@ -52,6 +54,7 @@ export function CatalogView() {
     filters.season.forEach((v) => params.append("season", v));
     filters.domain.forEach((v) => params.append("domain", v));
     if (filters.visaOnly) params.set("visaOnly", "true");
+    if (filters.hideExpired) params.set("hideExpired", "true");
 
     const res = await fetch(`/api/opportunities?${params.toString()}`);
     const data = await res.json();
@@ -121,6 +124,15 @@ export function CatalogView() {
               className="h-4 w-4 accent-volt-400"
             />
             Visa sponsorship only
+          </label>
+          <label className="flex shrink-0 items-center gap-2 rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-200">
+            <input
+              type="checkbox"
+              checked={filters.hideExpired}
+              onChange={(e) => setFilters((f) => ({ ...f, hideExpired: e.target.checked }))}
+              className="h-4 w-4 accent-volt-400"
+            />
+            Hide closed deadlines
           </label>
         </div>
 

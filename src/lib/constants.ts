@@ -38,6 +38,7 @@ export const SEASONS = [
   { value: "summer_2026", label: "Summer 2026" },
   { value: "fall_2026", label: "Fall 2026" },
   { value: "spring_2027", label: "Spring 2027" },
+  { value: "summer_2027", label: "Summer 2027" },
   { value: "year_round", label: "Year-Round" },
 ] as const;
 
