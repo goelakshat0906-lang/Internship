@@ -7,7 +7,7 @@ VoltScout combines a scheduled/manual scouting agent, a multi-axis opportunity c
 ## Tech Stack
 
 - **Next.js 14** (App Router) + **TypeScript**
-- **Prisma** ORM over **SQLite** (zero-config; swap the datasource for Postgres in production)
+- **Prisma** ORM over **Postgres**
 - **Tailwind CSS** for styling, **Recharts** for analytics, **@dnd-kit** for the Kanban board
 - **Gemini API** (`@google/generative-ai`) with **Google Search grounding** for the live scouting agent, resume matcher, and cover-letter generator — with deterministic fallbacks so every feature works with zero configuration
 
@@ -15,11 +15,20 @@ VoltScout combines a scheduled/manual scouting agent, a multi-axis opportunity c
 
 ```bash
 npm install
-cp .env.example .env      # already created for local dev; edit if needed
-npx prisma db push        # creates prisma/dev.db from the schema
+cp .env.example .env      # then set DATABASE_URL to your Postgres connection string
+npx prisma db push        # creates the schema in your database
 npm run db:seed           # seeds 15 real-world EE opportunities
 npm run dev                # http://localhost:3000
 ```
+
+Need a free Postgres instance? [Neon](https://neon.tech) and [Supabase](https://supabase.com) both offer one; Vercel also lets you provision a Neon database directly from a project's Storage tab.
+
+## Deploying to Vercel
+
+1. Push this repo to GitHub, then [sign up at vercel.com](https://vercel.com/signup) (free, no card required) and **Add New Project** → import the repo.
+2. In the project's **Storage** tab, click **Create Database** → **Neon** (Postgres) and connect it — this automatically sets the `DATABASE_URL` env var for you.
+3. Deploy. The `build` script runs `prisma generate` automatically; after the first deploy, run `npx prisma db push` locally with that same `DATABASE_URL` (or via `vercel env pull` + `npx prisma db push`) to create the tables, then `npm run db:seed` to seed data.
+4. Optionally add `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` in **Settings → Environment Variables** to enable live AI features (the app works without them via deterministic fallbacks).
 
 To build for production:
 
@@ -70,7 +79,7 @@ Set one (or both) in `.env` and restart the server. **If both are set, Anthropic
 
 ## Data Model
 
-See `prisma/schema.prisma`. Categorical fields (`orgType`, `region`, `season`, `level`, `userStatus`) are stored as validated strings (SQLite has no native enum type in Prisma) — canonical value sets live in `src/lib/constants.ts` and are enforced at the API boundary in `src/lib/validation.ts`.
+See `prisma/schema.prisma`. Categorical fields (`orgType`, `region`, `season`, `level`, `userStatus`) are stored as validated strings rather than native enums — canonical value sets live in `src/lib/constants.ts` and are enforced at the API boundary in `src/lib/validation.ts`.
 
 ## Project Structure
 

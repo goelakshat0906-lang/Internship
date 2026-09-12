@@ -29,6 +29,13 @@ export async function GET(req: NextRequest) {
   const visaOnly = params.get("visaOnly");
   if (visaOnly === "true") where.visaSupport = true;
 
+  const hideExpired = params.get("hideExpired");
+  if (hideExpired === "true") {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    where.OR = [{ deadline: null }, { deadline: { gte: startOfToday } }];
+  }
+
   const rows = await prisma.opportunity.findMany({
     where,
     orderBy: { discoveredAt: "desc" },
