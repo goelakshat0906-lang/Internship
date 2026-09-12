@@ -1,16 +1,19 @@
 import { PrismaClient } from "@prisma/client";
-import { SEED_OPPORTUNITIES } from "../src/lib/opportunity-data";
+import { SEED_OPPORTUNITIES, SUMMER_2027_OPPORTUNITIES } from "../src/lib/opportunity-data";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const existing = await prisma.opportunity.count();
-  if (existing > 0) {
-    console.log(`Skipping seed — ${existing} opportunities already present.`);
+  const allSeeds = [...SEED_OPPORTUNITIES, ...SUMMER_2027_OPPORTUNITIES];
+  const existingUrls = new Set((await prisma.opportunity.findMany({ select: { sourceUrl: true } })).map((o) => o.sourceUrl));
+  const toInsert = allSeeds.filter((opp) => !existingUrls.has(opp.sourceUrl));
+
+  if (toInsert.length === 0) {
+    console.log(`Skipping seed — all ${allSeeds.length} opportunities already present.`);
     return;
   }
 
-  for (const opp of SEED_OPPORTUNITIES) {
+  for (const opp of toInsert) {
     await prisma.opportunity.create({
       data: {
         title: opp.title,
@@ -35,7 +38,7 @@ async function main() {
     });
   }
 
-  console.log(`Seeded ${SEED_OPPORTUNITIES.length} opportunities.`);
+  console.log(`Seeded ${toInsert.length} new opportunities (${allSeeds.length - toInsert.length} already present).`);
 }
 
 main()

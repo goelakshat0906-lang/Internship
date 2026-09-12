@@ -13,7 +13,7 @@ export type SeedOpportunity = {
   domain: string;
   location: string;
   region: "north_america" | "europe" | "asia_pacific" | "global_remote";
-  season: "summer_2026" | "fall_2026" | "spring_2027" | "year_round";
+  season: "summer_2026" | "fall_2026" | "spring_2027" | "summer_2027" | "year_round";
   level: "undergraduate" | "masters" | "phd";
   deadline: string | null;
   stipendEstimate: string | null;
@@ -478,6 +478,152 @@ export const SEED_OPPORTUNITIES: SeedOpportunity[] = [
     ],
     techStack: ["MATLAB/Simulink", "PSCAD", "LTspice"],
     sourceUrl: "https://www.nrel.gov/careers/",
+  },
+];
+
+// Summer 2027 cycle — postings for the next application cycle out, with
+// deadlines still ahead of the current date so they show up as open in the
+// catalog once seeded.
+export const SUMMER_2027_OPPORTUNITIES: SeedOpportunity[] = [
+  {
+    title: "Custom Silicon Validation Intern",
+    organization: "Intel",
+    orgType: "corporate",
+    domain: "VLSI & Chip Design",
+    location: "Hillsboro, OR, USA",
+    region: "north_america",
+    season: "summer_2027",
+    level: "undergraduate",
+    deadline: "2027-01-15",
+    stipendEstimate: "$8,400 / month",
+    housingSupport: "Housing stipend included",
+    visaSupport: true,
+    description:
+      "Join Intel's Client Computing Group to validate next-generation SoC blocks ahead of production, working across pre-silicon emulation and post-silicon bring-up.",
+    responsibilities: [
+      "Build automated validation test benches for SoC IP blocks",
+      "Debug signal integrity and timing issues on bring-up boards",
+      "Support coverage closure with the design verification team",
+    ],
+    qualifications: [
+      "Pursuing a BS/MS in Electrical/Computer Engineering",
+      "Coursework in digital design or computer architecture",
+      "Scripting experience (Python or Perl)",
+    ],
+    techStack: ["Xilinx Vivado", "Python", "SystemVerilog"],
+    sourceUrl: "https://jobs.intel.com/en/students",
+  },
+  {
+    title: "Grid Power Electronics Intern",
+    organization: "Siemens Energy",
+    orgType: "industry",
+    domain: "Power Systems & Energy",
+    location: "Erlangen, Germany",
+    region: "europe",
+    season: "summer_2027",
+    level: "masters",
+    deadline: "2026-12-01",
+    stipendEstimate: "€2,600 / month",
+    housingSupport: "Relocation assistance available",
+    visaSupport: true,
+    description:
+      "Support Siemens Energy's Grid Technologies division designing high-voltage converter systems for renewable integration and HVDC transmission projects.",
+    responsibilities: [
+      "Model converter topologies for HVDC transmission applications",
+      "Support grid-code compliance simulations",
+      "Analyze field performance data from pilot installations",
+    ],
+    qualifications: [
+      "MS student in Electrical Engineering (power systems focus)",
+      "Experience with PSCAD or MATLAB/Simulink power modeling",
+      "Interest in renewable grid integration",
+    ],
+    techStack: ["PSCAD", "MATLAB/Simulink"],
+    sourceUrl: "https://jobs.siemens-energy.com/students",
+  },
+  {
+    title: "Memory Systems Design Intern",
+    organization: "Samsung Semiconductor",
+    orgType: "corporate",
+    domain: "VLSI & Chip Design",
+    location: "Hwaseong, South Korea",
+    region: "asia_pacific",
+    season: "summer_2027",
+    level: "undergraduate",
+    deadline: "2027-02-01",
+    stipendEstimate: "₩4,200,000 / month",
+    housingSupport: "On-site housing provided",
+    visaSupport: true,
+    description:
+      "Support Samsung's Memory Division on next-generation DRAM and NAND circuit design, working alongside process and product engineering teams.",
+    responsibilities: [
+      "Design and simulate memory array peripheral circuits",
+      "Support characterization of memory cell reliability",
+      "Document design trade-offs for the review board",
+    ],
+    qualifications: [
+      "Pursuing a BS/MS in Electrical Engineering",
+      "Coursework in digital or mixed-signal IC design",
+      "Familiarity with Cadence or Synopsys tools",
+    ],
+    techStack: ["Cadence Virtuoso", "Synopsys"],
+    sourceUrl: "https://www.samsungsemiconductor.com/careers/students",
+  },
+  {
+    title: "Autonomous Driving Embedded Systems Intern",
+    organization: "Waymo",
+    orgType: "industry",
+    domain: "Embedded Systems & IoT",
+    location: "Mountain View, CA, USA",
+    region: "north_america",
+    season: "summer_2027",
+    level: "masters",
+    deadline: "2027-01-20",
+    stipendEstimate: "$9,300 / month",
+    housingSupport: "Housing stipend included",
+    visaSupport: true,
+    description:
+      "Develop embedded firmware and hardware-in-the-loop test infrastructure for Waymo's autonomous vehicle compute and sensor platforms.",
+    responsibilities: [
+      "Develop real-time embedded firmware for sensor interface boards",
+      "Build hardware-in-the-loop test rigs for compute platforms",
+      "Debug firmware issues using JTAG/logic analyzers",
+    ],
+    qualifications: [
+      "MS student in Electrical/Computer Engineering",
+      "Strong C/C++ and RTOS experience",
+      "Understanding of real-time sensor interfacing",
+    ],
+    techStack: ["FreeRTOS", "Python"],
+    sourceUrl: "https://waymo.com/careers/",
+  },
+  {
+    title: "RF Front-End Research Intern",
+    organization: "Ericsson",
+    orgType: "industry",
+    domain: "RF & 5G/6G Telecom",
+    location: "Remote (Global)",
+    region: "global_remote",
+    season: "summer_2027",
+    level: "phd",
+    deadline: "2027-02-15",
+    stipendEstimate: "$7,800 / month",
+    housingSupport: null,
+    visaSupport: true,
+    description:
+      "Research RF front-end architectures and link-level algorithms for next-generation 6G radio platforms within Ericsson Research's global remote research track.",
+    responsibilities: [
+      "Model RF front-end trade-offs in MATLAB/Simulink",
+      "Analyze link budgets for sub-6GHz and mmWave bands",
+      "Contribute to standards-track technical reports",
+    ],
+    qualifications: [
+      "PhD student in EE with an RF/communications focus",
+      "Strong MATLAB proficiency",
+      "Coursework in digital communications or antenna theory",
+    ],
+    techStack: ["MATLAB/Simulink", "Python"],
+    sourceUrl: "https://www.ericsson.com/en/careers/students",
   },
 ];
 
