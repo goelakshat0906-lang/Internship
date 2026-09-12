@@ -1,15 +1,16 @@
 // VoltScout data model
-// SQLite for zero-config local persistence; swap provider/url for Postgres in production.
-// Note: SQLite has no native enum support in Prisma, so categorical fields
-// are stored as validated strings — the canonical value sets live in
-// src/lib/constants.ts and are enforced at the API boundary (src/lib/validation.ts).
+// Postgres datasource (required for serverless deploys like Vercel, whose
+// functions have no persistent filesystem for a SQLite file).
+// Note: categorical fields are stored as validated strings rather than
+// native enums — the canonical value sets live in src/lib/constants.ts and
+// are enforced at the API boundary (src/lib/validation.ts).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
